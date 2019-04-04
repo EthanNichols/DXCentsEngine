@@ -19,6 +19,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Component.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)DXCore.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)GameObject.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)InputManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Logger.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Material.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Mesh.cpp" />
@@ -34,11 +35,10 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Camera.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CentsEngine.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)Color.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Component.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)DXCore.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)GameObject.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)LightTypes.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)InputManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Logger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Mesh.h" />
