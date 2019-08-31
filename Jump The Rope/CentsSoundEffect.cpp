@@ -2,16 +2,15 @@
 
 
 
-CentsSoundEffect::CentsSoundEffect()
-{
-}
+CentsSoundEffect::CentsSoundEffect(){}
+
+CentsSoundEffect::~CentsSoundEffect() {}
 
 CentsSoundEffect::CentsSoundEffect(AudioEngine* audEngine, const wchar_t* location)
 {
 	soundEffect = std::make_unique<DirectX::SoundEffect>(audEngine, location);
 	soundEffectInstance = soundEffect->CreateInstance();
 }
-
 CentsSoundEffect::CentsSoundEffect(AudioEngine * audEngine, const wchar_t* location, bool loop)
 {
 	soundEffect = std::make_unique<DirectX::SoundEffect>(audEngine, location);
@@ -19,71 +18,114 @@ CentsSoundEffect::CentsSoundEffect(AudioEngine * audEngine, const wchar_t* locat
 	Loop = loop;
 }
 
-
-CentsSoundEffect::~CentsSoundEffect()
-{
-}
-
 void CentsSoundEffect::Update(float deltaTime, float totalTime)
 {
-	if (state == DelayStart) {
+	switch (state) {
+	case DelayStart:
 		Play(totalTime);
-		state = Playing;
-		endTime = startTime + (soundEffect->GetSampleDurationMS() / 1000.0f);
-	}
-	if (state == Starting) {
-		startTime = totalTime;
-		state = Playing;
-		endTime = startTime + (soundEffect->GetSampleDurationMS() / 1000.0f);
-	}
-	if (state == Playing && !Loop) {
-		if (totalTime > endTime) {
+		state = Starting;
+		// fallthrough
+	case Starting:
+		Start(totalTime);
+		break;
+	case Playing:
+		// update value, and then set 
+		// we have to reference the actual rtpcs[i].pval due to references, foreach is a copy
+		for (int i = 0; i < rtpcs.size(); i++) {
+			RTPC rtpc = rtpcs[i];
+			if (rtpc.cval != *rtpc.control) {
+				rtpcUpdate = true;
+				rtpc.cval = *rtpc.control;
+				rtpcs[i].pval = map(rtpc.cval, rtpc.cmin, rtpc.cmax, rtpc.pmin, rtpc.pmax);
+			}
+		}
+		if (rtpcUpdate) {
+			SetRTPCs();
+			rtpcUpdate = false;
+			// pitch adjusts length, length is currently uncalculable if adjusted, this may cause bugs
+			if (isLinked && soundEffectInstance->GetState() == STOPPED) endTime = totalTime - 1;
+		}
+		if (!Loop && totalTime > endTime) {
 			state = Completed;
 			if (SetLoopDelayed) {
 				Loop = true;
 				Play(startTime);
 			}
-			else if (linked != nullptr) {
+			else if (isLinked) {
+				linked->rtpcs = rtpcs;
+				linked->rtpcParams = rtpcParams;
 				linked->Play(totalTime);
 			}
 		}
+		break;
+	case Completed:
+		if(!isLinked) soundEffectInstance->Stop(true);
+		state = Ready;
+		break;
 	}
+
+	if (fadeStartTime == 0.0f) {
+
+		fadeStartTime = totalTime;
+		fadeEndTime += fadeStartTime;
+
+	}
+	if (totalTime < fadeEndTime) {
+		Set(map(totalTime, fadeStartTime, fadeEndTime, fadeFrom, fadeTo));
+	}
+
+}
+
+void CentsSoundEffect::Start(float totalTime) {
+	startTime = totalTime;
+	endTime = startTime + (soundEffect->GetSampleDurationMS() / 1000.0f);
+	state = Playing;
+}
+
+float CentsSoundEffect::map(float in, float inmin, float inmax, float outmin, float outmax)
+{
+	if (in < inmin) in = inmin;
+	if (in > inmax) in = inmax;
+	return outmin + ((outmax - outmin) / (inmax - inmin)) * (in - inmin);
 }
 
 void CentsSoundEffect::Link(CentsSoundEffect * linkee)
 {
 	linked = linkee;
+	isLinked = true;
 }
 
 void CentsSoundEffect::Link(CentsSoundEffect * linkee, bool loop)
 {
 	linked = linkee;
 	linked->SetLoop(loop);
+	isLinked = true;
+}
+
+
+void CentsSoundEffect::Play()
+{
+	soundEffectInstance->Play(Loop);
+	state = Starting;
 }
 
 void CentsSoundEffect::Play(float volume, float pitch, float pan)
 {
 	Set(volume, pitch, pan);
-	soundEffectInstance->Play(Loop);
+	Play();
 }
 
-void CentsSoundEffect::Play(float totaltime)
+void CentsSoundEffect::Play(float totalTime)
 {
 	soundEffectInstance->Play(Loop);
-	state = Playing;
-	startTime = totaltime;
+	Start(totalTime);
 }
 
-void CentsSoundEffect::Play(float volume, float pitch, float pan, float totaltime)
+void CentsSoundEffect::Play(float volume, float pitch, float pan, float totalTime)
 {
 	Set(volume, pitch, pan);
-	Play(totaltime);
-}
-
-void CentsSoundEffect::Play()
-{
 	soundEffectInstance->Play(Loop);
-	state = Playing;
+	Start(totalTime);
 }
 
 void CentsSoundEffect::PlayOnUpdate()
@@ -95,6 +137,19 @@ void CentsSoundEffect::PlayOnUpdate(float volume, float pitch, float pan)
 {
 	Set(volume, pitch, pan);
 	state = DelayStart;
+}
+
+CentsSoundEffect::RTPCParams* CentsSoundEffect::CreateRTPCParams()
+{
+	rtpcParams.push_back({ nullptr, nullptr, nullptr });
+	return &rtpcParams[rtpcParams.size() - 1];
+}
+
+void CentsSoundEffect::Bind(float *& param, float * control, float pmin, float pmax, float cmin, float cmax)
+{
+	rtpcs.push_back({ pmin, pmax, pmin, control, cmin, cmax, cmin });
+	bound = true;
+	param = &rtpcs[rtpcs.size() -1].pval;
 }
 
 void CentsSoundEffect::SetLoop(bool loop)
@@ -109,7 +164,10 @@ void CentsSoundEffect::SetLoop(bool loop)
 void CentsSoundEffect::Stop(bool immediate)
 {
 	soundEffectInstance->Stop(immediate);
-	if (linked != nullptr) linked->Stop(immediate);
+	state = Ready;
+	if (isLinked) {
+		linked->Stop(immediate);
+	}
 }
 
 void CentsSoundEffect::Set(float volume, float pitch, float pan, bool setLinked)
@@ -119,14 +177,39 @@ void CentsSoundEffect::Set(float volume, float pitch, float pan, bool setLinked)
 		soundEffectInstance->SetPitch(pitch);
 		soundEffectInstance->SetPan(pan);
 		paramsSetting = true;
-		if (setLinked && linked != nullptr) {
+		if (setLinked && isLinked) {
 			linked->Set(volume, pitch, pan, setLinked);
 		}
 		paramsSetting = false;
 	}
 }
 
-bool CentsSoundEffect::IsComplete()
+void CentsSoundEffect::SetRTPCs()
 {
-	return state == Completed;
+	for (RTPCParams params : rtpcParams) {
+		if (params.volume != nullptr) soundEffectInstance->SetVolume(*params.volume);
+		if (params.pan != nullptr) soundEffectInstance->SetPan(*params.pan);
+		if (params.pitch != nullptr) soundEffectInstance->SetPitch(*params.pitch);
+	}
+}
+
+void CentsSoundEffect::Fade(float from, float to, float timeMillis)
+{
+	fadeStartTime = 0.0f;
+	fadeTo = to;
+	fadeFrom = from;
+	fadeEndTime = timeMillis;
+}
+
+void CentsSoundEffect::Fade(float from, float to, float timeMillis, float startTime)
+{
+	fadeStartTime = startTime;
+	fadeTo = to;
+	fadeFrom = from;
+	fadeEndTime = startTime + timeMillis;
+}
+
+bool CentsSoundEffect::IsReady()
+{
+	return state == Ready;
 }

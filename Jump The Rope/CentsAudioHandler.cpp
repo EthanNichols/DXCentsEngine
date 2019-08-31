@@ -29,7 +29,7 @@ void CentsAudioHandler::Update(float deltaTime, float totalTime)
 	}
 	 else {
 		 for (int i = 0; i < effects.size(); i++) {
-			 effects.at(i)->Update(deltaTime, totalTime);
+			 effects[i]->Update(deltaTime, totalTime);
 		 }
 	 }
 }

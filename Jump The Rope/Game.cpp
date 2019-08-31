@@ -157,14 +157,21 @@ void Game::Init()
 	bgIntro = audioHandler->CreateSoundEffect(L"Assets/Audio/audio_background_intro.wav");
 	bgLoop = audioHandler->CreateSoundEffect(L"Assets/Audio/audio_background_loop.wav", true);
 	bgIntro->Link(bgLoop);
-	bgIntro->Set(0.5f);
-	bgIntro->PlayOnUpdate();
+	bgIntro->Set(0.35f);
+	CentsSoundEffect::RTPCParams* introParams = bgIntro->CreateRTPCParams();
+	bgIntro->Bind(introParams->pitch, &ropeSpeed, -0.01f, 0.75f, startRopeSpeed, speedIncreaseMax);
 
-	jumpSfx.push_back(audioHandler->CreateSoundEffect(L"Assets/Audio/sfx/jump_3.wav"));
-	jumpSfx.push_back(audioHandler->CreateSoundEffect(L"Assets/Audio/sfx/jump_2.wav"));
-	jumpSfx.push_back(audioHandler->CreateSoundEffect(L"Assets/Audio/sfx/jump_1.wav"));
+	menuIntro = audioHandler->CreateSoundEffect(L"Assets/Audio/audio_menu_intro.wav");
+	menuLoop = audioHandler->CreateSoundEffect(L"Assets/Audio/audio_menu_loop.wav", true);
+	menuIntro->Link(menuLoop);
+	menuIntro->Set(menuVolume);
+	menuIntro->PlayOnUpdate();
+
 	jumpSfx.push_back(audioHandler->CreateSoundEffect(L"Assets/Audio/sfx/jump_0.wav"));
-	for (int i = 0; i < jumpSfx.size(); i++) jumpSfx[i]->Set(2.0f);
+	jumpSfx.push_back(audioHandler->CreateSoundEffect(L"Assets/Audio/sfx/jump_1.wav"));
+	jumpSfx.push_back(audioHandler->CreateSoundEffect(L"Assets/Audio/sfx/jump_2.wav"));
+	jumpSfx.push_back(audioHandler->CreateSoundEffect(L"Assets/Audio/sfx/jump_3.wav"));
+	for (int i = 0; i < jumpSfx.size(); i++) jumpSfx[i]->Set(0.5f, 0.0f, 0.95f);
 
 	D3D11_RASTERIZER_DESC skyRD = {};
 	skyRD.CullMode = D3D11_CULL_FRONT;
@@ -760,10 +767,19 @@ void Game::Update(float deltaTime, float totalTime)
 
 		if (p1Input && p2Input)
 		{
+
 			timer += deltaTime;
+
+			if (!menuFading) {
+				menuIntro->Fade(menuVolume, 0.0f, readyLength);
+				//menuIntro->Stop(true);
+				menuFading = true;
+			}
 
 			if (timer >= readyLength)
 			{
+				menuFading = false;
+				bgIntro->PlayOnUpdate();
 				gameState = GameState::Playing;
 
 				numJumps = 0;
@@ -778,11 +794,18 @@ void Game::Update(float deltaTime, float totalTime)
 		else
 		{
 			timer = 0;
+			if (menuFading) {
+				//audioHandler->ReplaceFade(menuFadeOut, menuFadeIn);
+				menuIntro->Fade(0.0f, menuVolume, readyLength);
+				//menuIntro->Play();
+				menuFading = false;
+			}
 		}
 	}
 	if (gameState == GameState::Playing)
 	{
-		ropeSpeed += speedIncrease * deltaTime;
+		if (ropeSpeed < speedIncreaseMax) ropeSpeed += speedIncrease * deltaTime;
+		if (ropeSpeed > speedIncreaseMax) ropeSpeed = speedIncreaseMax;
 
 		if (p1Input)
 		{
@@ -806,8 +829,7 @@ void Game::Update(float deltaTime, float totalTime)
 				}
 			}
 		}
-		else if (rope->transform->EulerAngles().x > 225 && !awardedJump) {
-			if (numJumps > 4) jumpSfx[(numJumps - 2) % 4]->Stop(true);
+		else if (rope->transform->EulerAngles().x > 180 + ropeWidth && !awardedJump) {
 			jumpSfx[numJumps % 4]->Play();
 			numJumps++;
 			awardedJump = true;
@@ -815,7 +837,10 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 	if (gameState == GameState::End)
 	{
+		bgIntro->Stop(true);
+		menuIntro->Fade(0.0f, menuVolume, readyLength);
 
+		//menuIntro->Play();
 		timer += deltaTime;
 
 		if (timer > endScreenLength && rope->transform->EulerAngles().x == 0)
