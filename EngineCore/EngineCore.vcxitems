@@ -24,7 +24,10 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Camera.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Component.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)DXCore.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)EditorManager.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)GameObject.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)HierarchyWindow.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)InspectorWindow.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Logger.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Material.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Mesh.cpp" />
@@ -51,7 +54,10 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Color.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Component.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)DXCore.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)EditorManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)GameObject.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HierarchyWindow.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)InspectorWindow.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)LightTypes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Logger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Material.h" />

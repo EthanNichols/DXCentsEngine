@@ -7,6 +7,8 @@
 #include "Mesh.h"
 #include "Material.h"
 
+typedef std::unordered_map<std::string, Component*> COMPONENT_MAP;
+
 class GameObject : public Object
 {
 public:
@@ -84,6 +86,11 @@ public:
 		}
 	}
 
+	const COMPONENT_MAP* GetAllComponents() const
+	{
+		return &attachedComponents;
+	}
+
 	/// <summary>
 	/// Remove a Component that is attached to this gameobject
 	/// </summary>
@@ -109,5 +116,5 @@ protected:
 	/// Map of all of the components attached to this GameObject
 	/// Key is the name of the Component, value is the Component reference
 	/// </summary>
-	std::unordered_map<std::string, Component*> attachedComponents;
+	COMPONENT_MAP attachedComponents;
 };

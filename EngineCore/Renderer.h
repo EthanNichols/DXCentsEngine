@@ -16,5 +16,7 @@ protected:
 	Material* material = nullptr;
 
 	virtual ~Renderer() override;
+
+	void DrawEditor() override;
 };
 

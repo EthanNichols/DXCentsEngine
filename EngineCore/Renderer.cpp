@@ -12,3 +12,8 @@ Renderer::Renderer(std::string name) : Component(name)
 Renderer::~Renderer()
 {
 }
+
+
+void Renderer::DrawEditor()
+{
+}

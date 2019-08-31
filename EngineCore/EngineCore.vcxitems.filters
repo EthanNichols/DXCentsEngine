@@ -31,6 +31,12 @@
     <Filter Include="Util\ImGui">
       <UniqueIdentifier>{b2555366-fa50-4ddf-8127-d7067e1f43a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Editor">
+      <UniqueIdentifier>{57de89ea-6e63-444c-b15d-ee91d74e7f51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Editor\Windows">
+      <UniqueIdentifier>{5c36bbc3-24d6-46ae-a820-12e3da8f2276}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)Logger.cpp">
@@ -91,6 +97,15 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)..\_Include\imgui\imgui_widgets.cpp">
       <Filter>Util\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)EditorManager.cpp">
+      <Filter>Core\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)HierarchyWindow.cpp">
+      <Filter>Core\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)InspectorWindow.cpp">
+      <Filter>Core\Editor\Windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +189,15 @@
     </ClInclude>
     <ClInclude Include="$(MSBuildThisFileDirectory)..\_Include\imgui\imstb_truetype.h">
       <Filter>Util\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)EditorManager.h">
+      <Filter>Core\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)InspectorWindow.h">
+      <Filter>Core\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)HierarchyWindow.h">
+      <Filter>Core\Editor\Windows</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

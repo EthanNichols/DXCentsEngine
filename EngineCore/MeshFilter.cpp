@@ -23,3 +23,8 @@ void MeshFilter::SetMesh(Mesh * mesh)
 MeshFilter::~MeshFilter()
 {
 }
+
+
+void MeshFilter::DrawEditor()
+{
+}

@@ -2,7 +2,7 @@
 #include "Component.h"
 #include "Mesh.h"
 
-class MeshFilter : Component
+class MeshFilter : public Component
 {
 public:
 	MeshFilter();
@@ -16,5 +16,7 @@ protected:
 	Mesh* mesh = nullptr;
 
 	virtual ~MeshFilter() override;
+
+	void DrawEditor() override;
 };
 

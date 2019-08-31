@@ -14,6 +14,11 @@ Camera::~Camera()
 }
 
 
+void Camera::DrawEditor()
+{
+}
+
+
 void Camera::Update(float deltaTime)
 {
 	XMVECTOR move = { 0.0f, 0.0f, 0.0f };

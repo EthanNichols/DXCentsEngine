@@ -16,6 +16,7 @@
 #include "LightTypes.h"
 #include "CentsEngine.h"
 #include "RenderManager.h"
+#include "EditorManager.h"
 
 class Game
 	: public DXCore
@@ -58,7 +59,7 @@ private:
 	Camera* camera;
 	GameObject* camObject;
 
-	// Keeps track of the old mouse position.  Useful for 
+	// Keeps track of the old mouse position.  Useful for
 	// determining how far the mouse moved in a single frame.
 	POINT prevMousePos;
 };

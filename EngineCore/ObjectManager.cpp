@@ -39,6 +39,12 @@ void ObjectManager::RegisterObject(Object* const object)
 }
 
 
+void ObjectManager::RegisterGameObject(GameObject* const gameObject)
+{
+	HierarchyWindow::GetInstance()->objectIDs.push_back(objectCount-1);
+}
+
+
 void ObjectManager::UnregisterObject(Object* const object)
 {
 	if (object->ID >= objectCount)

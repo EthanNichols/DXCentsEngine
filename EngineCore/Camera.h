@@ -25,6 +25,8 @@ public:
 protected:
 	virtual ~Camera() override;
 
+	void DrawEditor() override;
+
 private:
 
 	uint16_t screenWidth;

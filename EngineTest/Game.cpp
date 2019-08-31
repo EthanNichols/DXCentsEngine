@@ -25,6 +25,7 @@ Game::Game(HINSTANCE hInstance) : DXCore(hInstance, const_cast<char*>("DirectX G
 	Logger::GetInstance();
 	ObjectManager::GetInstance();
 	RenderManager::GetInstance();
+	EditorManager::GetInstance();
 
 	camObject = new GameObject("Camera");
 	camera = camObject->AddComponent<Camera>();
@@ -41,11 +42,12 @@ Game::~Game()
 {
 	ObjectManager::ReleaseInstance();
 	RenderManager::ReleaseInstance();
+	EditorManager::ReleaseInstance();
 
 	delete vertexShader;
 	delete pixelShader;
 
-	for (int i = 0; i < textureViews.size(); ++i)
+	for (size_t i = 0; i < textureViews.size(); ++i)
 	{
 		textureViews[i]->Release();
 	}
@@ -84,7 +86,7 @@ void Game::Init()
 	lights.ambientLightCount = 1;
 
 	// Tell the input assembler stage of the pipeline what kind of
-	// geometric primitives (points, lines or triangles) we want to draw.  
+	// geometric primitives (points, lines or triangles) we want to draw.
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -150,7 +152,7 @@ void Game::CreateMaterials()
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	
+
 	device->CreateSamplerState(&samplerDesc, &samplerState);
 	materials.push_back(new Material(vertexShader, pixelShader, textureViews[0], samplerState));
 	device->CreateSamplerState(&samplerDesc, &samplerState);
@@ -166,12 +168,12 @@ void Game::CreateMaterials()
 // --------------------------------------------------------
 void Game::CreateBasicGeometry()
 {
-	gameObjects.push_back(new GameObject("Test", meshes[0], materials[0]));
-	gameObjects.push_back(new GameObject("Test", meshes[1], materials[3]));
-	gameObjects.push_back(new GameObject("Test", meshes[2], materials[2]));
-	gameObjects.push_back(new GameObject("Test", meshes[3], materials[1]));
-	gameObjects.push_back(new GameObject("Test", meshes[4], materials[2]));
-	gameObjects.push_back(new GameObject("Test", meshes[5], materials[3]));
+	gameObjects.push_back(new GameObject("Cone", meshes[0], materials[0]));
+	gameObjects.push_back(new GameObject("Cube", meshes[1], materials[3]));
+	gameObjects.push_back(new GameObject("Cylinder", meshes[2], materials[2]));
+	gameObjects.push_back(new GameObject("Helix", meshes[3], materials[1]));
+	gameObjects.push_back(new GameObject("Sphere", meshes[4], materials[2]));
+	gameObjects.push_back(new GameObject("Torus", meshes[5], materials[3]));
 
 	gameObjects[1]->transform->Position(2.0f, 0.0f, 0.0f);
 	gameObjects[2]->transform->Position(4.0f, 0.0f, 0.0f);
@@ -229,21 +231,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	UINT offset = 0;
 
 	RenderManager::GetInstance()->Render(camera, context, lights);
-
-
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	{
-		ImGui::Begin("Test");
-		ImGui::Text("Testing ImGui");
-		ImGui::End();
-		ImGui::ShowTestWindow();
-	}
-
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	EditorManager::GetInstance()->Draw(deltaTime, device, context);
 
 	// Present the back buffer to the user
 	//  - Puts the final frame we're drawing into the window so the user can see it
@@ -288,13 +276,13 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 
 // --------------------------------------------------------
 // Helper method for mouse movement.  We only get this message
-// if the mouse is currently over the window, or if we're 
+// if the mouse is currently over the window, or if we're
 // currently capturing the mouse.
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
 	// Add any custom code here...
-	if (buttonState & 0x0001)
+	if (buttonState & 0x0002)
 	{
 		camera->transform->Rotate((float)(y - prevMousePos.y) * 0.1f, (float)(x - prevMousePos.x) * 0.1f, 0.0f);
 	}
@@ -305,8 +293,8 @@ void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 }
 
 // --------------------------------------------------------
-// Helper method for mouse wheel scrolling.  
-// WheelDelta may be positive or negative, depending 
+// Helper method for mouse wheel scrolling.
+// WheelDelta may be positive or negative, depending
 // on the direction of the scroll
 // --------------------------------------------------------
 void Game::OnMouseWheel(float wheelDelta, int x, int y)

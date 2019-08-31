@@ -3,9 +3,12 @@
 #include <stdint.h>
 
 #include "Singleton.h"
+#include "HierarchyWindow.h"
 #include "Object.h"
 
 class Object;
+class GameObject;
+class HierarchyWindow;
 
 /// <summary>
 /// Class that manages all of the objects that are created
@@ -14,6 +17,7 @@ class Object;
 class ObjectManager : public Singleton<ObjectManager>
 {
 	friend class Singleton<ObjectManager>;
+	friend class HierarchyWindow;
 	friend class GameObject;
 	friend class Object;
 
@@ -45,6 +49,7 @@ protected:
 	/// </summary>
 	/// <param name="object">The object to register</param>
 	void RegisterObject(Object* const object);
+	void RegisterGameObject(GameObject* const gameObject);
 	/// <summary>
 	/// Unregister an object from the manager
 	/// </summary>

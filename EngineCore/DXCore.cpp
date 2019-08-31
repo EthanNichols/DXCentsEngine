@@ -2,8 +2,11 @@
 
 #include <WindowsX.h>
 #include <sstream>
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx11.h"
 
-// Define the static instance variable so our OS-level 
+// Define the static instance variable so our OS-level
 // message handling function below can talk to our object
 DXCore* DXCore::DXCoreInstance = 0;
 
@@ -35,7 +38,7 @@ DXCore::DXCore(
 	bool debugTitleBarStats)	// Show extra stats (fps) in title bar?
 {
 	// Save a static reference to this object.
-	//  - Since the OS-level message function must be a non-member (global) function, 
+	//  - Since the OS-level message function must be a non-member (global) function,
 	//    it won't be able to directly interact with our DXCore object otherwise.
 	//  - (Yes, a singleton might be a safer choice here).
 	DXCoreInstance = this;
@@ -50,7 +53,7 @@ DXCore::DXCore(
 	// Initialize fields
 	fpsFrameCount = 0;
 	fpsTimeElapsed = 0.0f;
-	
+
 	device = 0;
 	context = 0;
 	swapChain = 0;
@@ -242,14 +245,14 @@ HRESULT DXCore::InitDirectX()
 	depthStencilDesc.SampleDesc.Count	= 1;
 	depthStencilDesc.SampleDesc.Quality = 0;
 
-	// Create the depth buffer and its view, then 
+	// Create the depth buffer and its view, then
 	// release our reference to the texture
 	ID3D11Texture2D* depthBufferTexture;
 	device->CreateTexture2D(&depthStencilDesc, 0, &depthBufferTexture);
 	device->CreateDepthStencilView(depthBufferTexture, 0, &depthStencilView);
 	depthBufferTexture->Release();
 
-	// Bind the views to the pipeline, so rendering properly 
+	// Bind the views to the pipeline, so rendering properly
 	// uses their underlying textures
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 
@@ -269,7 +272,7 @@ HRESULT DXCore::InitDirectX()
 }
 
 // --------------------------------------------------------
-// When the window is resized, the underlying 
+// When the window is resized, the underlying
 // buffers (textures) must also be resized to match.
 //
 // If we don't do this, the window size and our rendering
@@ -311,14 +314,14 @@ void DXCore::OnResize()
 	depthStencilDesc.SampleDesc.Count	= 1;
 	depthStencilDesc.SampleDesc.Quality = 0;
 
-	// Create the depth buffer and its view, then 
+	// Create the depth buffer and its view, then
 	// release our reference to the texture
 	ID3D11Texture2D* depthBufferTexture;
 	device->CreateTexture2D(&depthStencilDesc, 0, &depthBufferTexture);
 	device->CreateDepthStencilView(depthBufferTexture, 0, &depthStencilView);
 	depthBufferTexture->Release();
 
-	// Bind the views to the pipeline, so rendering properly 
+	// Bind the views to the pipeline, so rendering properly
 	// uses their underlying textures
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
 
@@ -406,7 +409,7 @@ void DXCore::UpdateTimer()
 	currentTime = now;
 
 	// Calculate delta time and clamp to zero
-	//  - Could go negative if CPU goes into power save mode 
+	//  - Could go negative if CPU goes into power save mode
 	//    or the process itself gets moved to another core
 	deltaTime = max((float)((currentTime - previousTime) * perfCounterSeconds), 0.0f);
 
@@ -467,7 +470,7 @@ void DXCore::UpdateTitleBarStats()
 
 // --------------------------------------------------------
 // Allocates a console window we can print to for debugging
-// 
+//
 // bufferLines   - Number of lines in the overall console buffer
 // bufferColumns - Numbers of columns in the overall console buffer
 // windowLines   - Number of lines visible at once in the window
@@ -503,10 +506,7 @@ void DXCore::CreateConsoleWindow(int bufferLines, int bufferColumns, int windowL
 	EnableMenuItem(hmenu, SC_CLOSE, MF_GRAYED);
 }
 
-
-
-
-
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 // --------------------------------------------------------
 // Handles messages that are sent to our window by the
 // operating system.  Ignoring these messages would cause
@@ -515,6 +515,9 @@ void DXCore::CreateConsoleWindow(int bufferLines, int bufferColumns, int windowL
 // --------------------------------------------------------
 LRESULT DXCore::ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
+		return true;
+
 	// Check the incoming message and handle any we care about
 	switch (uMsg)
 	{
@@ -524,7 +527,7 @@ LRESULT DXCore::ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		return 0;
 
 	// Prevent beeping when we "alt-enter" into fullscreen
-	case WM_MENUCHAR: 
+	case WM_MENUCHAR:
 		return MAKELRESULT(0, MNC_CLOSE);
 
 	// Prevent the overall window from becoming too small
@@ -545,9 +548,9 @@ LRESULT DXCore::ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		width = LOWORD(lParam);
 		height = HIWORD(lParam);
 
-		// If DX is initialized, resize 
+		// If DX is initialized, resize
 		// our required buffers
-		if (device) 
+		if (device)
 			OnResize();
 
 		return 0;

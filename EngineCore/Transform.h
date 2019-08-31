@@ -41,6 +41,8 @@ public:
 protected:
 	virtual ~Transform() override;
 
+	void DrawEditor() override;
+
 private:
 
 	bool dirty;

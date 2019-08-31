@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Object.h"
+#include "InspectorWindow.h"
+#include "imgui.h"
 
 class GameObject;
 class Transform;
@@ -8,6 +10,8 @@ class Transform;
 class Component : public Object
 {
 	friend class GameObject;
+	friend class InspectorWindow;
+
 public:
 
 	/// <summary>
@@ -29,4 +33,9 @@ protected:
 	/// <param name="name"></param>
 	Component(std::string name);
 	virtual ~Component() override;
+
+	/// <summary>
+	/// Draw the ImGUI fields
+	/// </summary>
+	virtual void DrawEditor() = 0;
 };

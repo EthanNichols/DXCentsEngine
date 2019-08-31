@@ -25,6 +25,19 @@ Transform::~Transform()
 }
 
 
+void Transform::DrawEditor()
+{
+	dirty = ImGui::InputFloat3("Position", (float*)&position) | dirty;
+	dirty = ImGui::InputFloat3("Rotation", (float*)&eulerAngle) | dirty;
+	dirty = ImGui::InputFloat3("Scale", (float*)&scale) | dirty;
+
+	if (dirty)
+	{
+		EulerRotation(eulerAngle);
+	}
+}
+
+
 XMFLOAT3 Transform::Position() const
 {
 	return position;

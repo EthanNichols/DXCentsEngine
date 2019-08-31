@@ -34,10 +34,10 @@ public:
 	// Initialization and game-loop related methods
 	HRESULT InitWindow();
 	HRESULT InitDirectX();
-	HRESULT Run();				
+	HRESULT Run();
 	void Quit();
 	virtual void OnResize();
-	
+
 	// Pure virtual methods for setup and game functionality
 	virtual void Init()										= 0;
 	virtual void Update(float deltaTime, float totalTime)	= 0;
@@ -49,17 +49,17 @@ public:
 	virtual void OnMouseUp	 (WPARAM buttonState, int x, int y) { }
 	virtual void OnMouseMove (WPARAM buttonState, int x, int y) { }
 	virtual void OnMouseWheel(float wheelDelta,   int x, int y) { }
-	
+
 protected:
 	HINSTANCE	hInstance;		// The handle to the application
 	HWND		hWnd;			// The handle to the window itself
 	std::string titleBarText;	// Custom text in window's title bar
 	bool		titleBarStats;	// Show extra stats in title bar?
-	
+
 	// Size of the window's client area
 	unsigned int width;
 	unsigned int height;
-	
+
 	// DirectX related objects and variables
 	D3D_FEATURE_LEVEL		dxFeatureLevel;
 	IDXGISwapChain*			swapChain;
@@ -84,7 +84,7 @@ private:
 	// FPS calculation
 	int fpsFrameCount;
 	float fpsTimeElapsed;
-	
+
 	void UpdateTimer();			// Updates the timer for this frame
 	void UpdateTitleBarStats();	// Puts debug info in the title bar
 };
